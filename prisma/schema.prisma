@@ -1,51 +1,58 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Doctor {
-  id       String    @id @default(auto()) @map("_id")
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  email    String    @unique
+  email    String   @unique
   password String
-  username String    @unique
+  username String   @unique
 
   patients Patient[]
 }
 
 model Patient {
-  id                   String   @id @default(auto()) @map("_id")
-  doctorId             String   // Reference to Doctor.id (simulated manually)
-  
-  contactNumber        String
-  fullName             String
-  gender               String
-  age                  Int
-  bloodGroup           String
-  allergies            String?
-  currentMedications   String?
-  smokingAlcoholStatus String?
-  symptoms             String?
-  currentProblem       String?
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  doctorId      String           @db.ObjectId
+  contactNumber String
+  fullName      String
 
-  // Quantitative Info
-  bloodPressure        String?
-  bloodSugarLevel      String?
+  doctor        Doctor?          @relation(fields: [doctorId], references: [id])
+  details       PatientDetails[]
+}
 
-  chronicConditions    String?
-  pastSurgeries        String?
+model PatientDetails {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId             String   @db.ObjectId
 
-  // No real foreign key constraint, just referencing
-  doctor   Doctor?     @relation(fields: [doctorId], references: [id])
+  // Patient condition
+  gender                String
+  age                   Int
+  bloodGroup            String //example: A+, A-, B+, B-, AB+, AB-, O+, O-
+  allergies             String? // example: peanuts, latex, etc.
+  currentMedications    String? // example: antibiotics, painkillers, etc.
+  smokingAlcoholStatus  String? // example: smoker, non-smoker, moderate drinker, etc.
+  symptoms              String? // example: cough, fever, headache, etc.
+  currentProblem        String? // example: pneumonia, flu, cold, etc.
+  bloodPressure         String? // example: 120/80
+  bloodSugarLevel       String? // example: 100 mg/dL
+  chronicConditions     String? // example: diabetes, hypertension, etc.
+
+  // Treatment-related info
+  diagnosis             String? // example: pneumonia, flu, cold, etc.
+  treatmentPlan         String? // example: antibiotics, painkillers, etc.
+  medicationsPrescribed String? // example: antibiotics, painkillers, etc.
+  proceduresPerformed   String? // example: surgery, X-ray, etc.
+  outcome               String? // example: Improved, Stable, Worsened
+  doctorNotes           String? // example: patient is feeling better, patient is not feeling well, etc.
+
+  createdAt             DateTime @default(now())
+
+  patient               Patient  @relation(fields: [patientId], references: [id])
 }
