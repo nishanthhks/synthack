@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id       String    @id @default(auto()) @map("_id")
+  name     String
+  email    String    @unique
+  password String
+  username String    @unique
+
+  patients Patient[]
+}
+
+model Patient {
+  id                   String   @id @default(auto()) @map("_id")
+  doctorId             String   // Reference to Doctor.id (simulated manually)
+  
+  contactNumber        String
+  fullName             String
+  gender               String
+  age                  Int
+  bloodGroup           String
+  allergies            String?
+  currentMedications   String?
+  smokingAlcoholStatus String?
+  symptoms             String?
+  currentProblem       String?
+
+  // Quantitative Info
+  bloodPressure        String?
+  bloodSugarLevel      String?
+
+  chronicConditions    String?
+  pastSurgeries        String?
+
+  // No real foreign key constraint, just referencing
+  doctor   Doctor?     @relation(fields: [doctorId], references: [id])
+}
