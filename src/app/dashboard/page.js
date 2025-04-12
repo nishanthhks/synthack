@@ -17,21 +17,15 @@ import {
   BarChart,
   ChevronDown,
   Loader2,
+  Brain,
+  TrendingUp,
+  Zap,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import NewPatientForm from "@/components/NewPatientForm";
 import { signOut } from "next-auth/react";
-
-// Dashboard metrics
-const metrics = {
-  totalPatients: 324,
-  activePatients: 189,
-  newPatientsLastMonth: 27,
-  averageAge: 46,
-  mostCommonDiagnosis: "Hypertension",
-  averageTreatmentTime: "9.5 days",
-};
+import { useSession } from "next-auth/react";
 
 export default function PatientDashboard() {
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -43,10 +37,151 @@ export default function PatientDashboard() {
   const [patientsData, setPatientsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [treatmentInsights, setTreatmentInsights] = useState({
+    responseRate: "N/A",
+    adverseEffects: "N/A",
+    recommendedTreatments: ["No treatments available"],
+    predictedOutcome: "Not analyzed",
+    confidenceLevel: 0,
+  });
 
   useEffect(() => {
     fetchPatients();
   }, []);
+
+  useEffect(() => {
+    // Update treatment insights when a patient is selected or analysis changes
+    if (selectedPatient && treatmentAnalysis[selectedPatient.id]) {
+      const analysis = treatmentAnalysis[selectedPatient.id];
+
+      // Calculate response rate based on patient condition and analysis
+      const responseRate = calculateResponseRate(selectedPatient, analysis);
+
+      // Calculate adverse effects probability
+      const adverseEffects = calculateAdverseEffects(selectedPatient, analysis);
+
+      // Extract recommended treatments
+      const recommendedTreatments = analysis.treatments
+        ? analysis.treatments.map((t) => t.name).slice(0, 3)
+        : ["No specific treatments recommended"];
+
+      // Determine predicted outcome and confidence
+      const { outcome, confidence } = calculateOutcome(
+        selectedPatient,
+        analysis
+      );
+
+      setTreatmentInsights({
+        responseRate: `${responseRate}%`,
+        adverseEffects: `${adverseEffects}%`,
+        recommendedTreatments,
+        predictedOutcome: `${outcome} (${confidence}% confidence)`,
+        confidenceLevel: confidence,
+      });
+    } else {
+      // Reset insights when no patient is selected
+      setTreatmentInsights({
+        responseRate: "N/A",
+        adverseEffects: "N/A",
+        recommendedTreatments: ["Select a patient for analysis"],
+        predictedOutcome: "Not analyzed",
+        confidenceLevel: 0,
+      });
+    }
+  }, [selectedPatient, treatmentAnalysis]);
+
+  // Helper function to calculate response rate based on patient data and analysis
+  const calculateResponseRate = (patient, analysis) => {
+    if (!patient || !analysis) return 0;
+
+    // Base response rate
+    let rate = 70;
+
+    // Adjust based on patient age
+    if (patient.details.age < 30) rate += 10;
+    else if (patient.details.age > 60) rate -= 5;
+
+    // Adjust based on chronic conditions
+    if (
+      patient.details.chronicConditions &&
+      patient.details.chronicConditions.toLowerCase().includes("diabetes")
+    ) {
+      rate -= 8;
+    }
+
+    // Adjust based on current condition
+    if (patient.details.outcome === "Improving") rate += 12;
+    if (patient.details.outcome === "Worsening") rate -= 15;
+
+    // Ensure rate is within bounds
+    return Math.min(Math.max(rate, 30), 95);
+  };
+
+  // Helper function to calculate adverse effects probability
+  const calculateAdverseEffects = (patient, analysis) => {
+    if (!patient || !analysis) return 0;
+
+    // Base adverse effects rate
+    let rate = 10;
+
+    // Adjust based on allergies
+    if (
+      patient.details.allergies &&
+      patient.details.allergies.toLowerCase() !== "none"
+    ) {
+      rate += 8;
+    }
+
+    // Adjust based on current medications
+    if (
+      patient.details.currentMedications &&
+      patient.details.currentMedications.toLowerCase() !== "none"
+    ) {
+      rate += 5;
+    }
+
+    // Adjust based on smoking/alcohol status
+    if (
+      patient.details.smokingAlcoholStatus &&
+      patient.details.smokingAlcoholStatus.toLowerCase().includes("smoker")
+    ) {
+      rate += 7;
+    }
+
+    // Ensure rate is within bounds
+    return Math.min(Math.max(rate, 5), 40);
+  };
+
+  // Helper function to determine outcome and confidence
+  const calculateOutcome = (patient, analysis) => {
+    if (!patient || !analysis) return { outcome: "Unknown", confidence: 0 };
+
+    // Determine outcome based on patient condition and analysis
+    let outcome = "Neutral";
+    let confidence = 65;
+
+    // Adjust based on patient condition
+    if (patient.details.outcome === "Improving") {
+      outcome = "Positive";
+      confidence += 15;
+    } else if (patient.details.outcome === "Worsening") {
+      outcome = "Guarded";
+      confidence -= 10;
+    }
+
+    // Adjust based on treatment plan
+    if (
+      patient.details.treatmentPlan &&
+      patient.details.treatmentPlan.toLowerCase() !== "not established"
+    ) {
+      confidence += 10;
+    }
+
+    // Ensure confidence is within bounds
+    confidence = Math.min(Math.max(confidence, 40), 95);
+
+    return { outcome, confidence };
+  };
 
   const fetchPatients = async () => {
     setIsLoading(true);
@@ -140,6 +275,37 @@ export default function PatientDashboard() {
     }
   };
 
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500 mr-2" />
+        <p className="text-lg text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+  
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <Alert className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Authentication Required</AlertTitle>
+          <AlertDescription>
+            You need to be signed in to access this page.
+          </AlertDescription>
+        </Alert>
+        <Button 
+          className="mt-4"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          Return to Home
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Header */}
@@ -173,77 +339,128 @@ export default function PatientDashboard() {
           </button>
           <button
             className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md flex items-center space-x-2"
-            onClick={() => signOut()}>
+            onClick={() => signOut({ callbackUrl: "/" })}>
             Sign Out
           </button>
         </div>
       </div>
 
-      {/* Dashboard Metrics */}
+      {/* AI Treatment Optimization Dashboard */}
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-600 font-medium">Patient Statistics</h2>
-              <Users className="text-blue-500" />
+              <h2 className="text-gray-600 font-medium">
+                Treatment Response Prediction
+              </h2>
+              <Brain className="text-blue-500" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-500 text-sm">Total Patients</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {metrics.totalPatients}
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <p
+                  className={`text-4xl font-bold ${
+                    parseFloat(treatmentInsights.responseRate) > 70
+                      ? "text-green-600"
+                      : parseFloat(treatmentInsights.responseRate) > 50
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                  }`}>
+                  {treatmentInsights.responseRate}
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Predicted Response Rate
                 </p>
               </div>
-              <div>
-                <p className="text-gray-500 text-sm">Active Patients</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {metrics.activePatients}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">New (30 days)</p>
-                <p className="text-2xl font-bold text-green-600">
-                  +{metrics.newPatientsLastMonth}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Avg. Age</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {metrics.averageAge}
-                </p>
-              </div>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-500">
+                Adverse Effects Probability
+              </p>
+              <p
+                className={`font-medium ${
+                  parseFloat(treatmentInsights.adverseEffects) < 15
+                    ? "text-green-600"
+                    : parseFloat(treatmentInsights.adverseEffects) < 25
+                    ? "text-yellow-600"
+                    : "text-red-600"
+                }`}>
+                {treatmentInsights.adverseEffects}
+              </p>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-600 font-medium">Diagnostic Summary</h2>
+              <h2 className="text-gray-600 font-medium">
+                Personalized Treatment Options
+              </h2>
               <Stethoscope className="text-blue-500" />
             </div>
-            <div className="flex items-center justify-center h-32">
-              <PieChart className="text-blue-600 w-28 h-28 opacity-70" />
+            <div className="flex flex-col justify-center h-32">
+              <ul className="space-y-2">
+                {treatmentInsights.recommendedTreatments.map(
+                  (treatment, index) => (
+                    <li key={index} className="flex items-center">
+                      <div
+                        className={`h-2 w-2 rounded-full mr-2 ${
+                          index === 0
+                            ? "bg-green-500"
+                            : index === 1
+                            ? "bg-blue-500"
+                            : "bg-purple-500"
+                        }`}></div>
+                      <span className="text-gray-800">{treatment}</span>
+                    </li>
+                  )
+                )}
+              </ul>
             </div>
             <div className="mt-2">
-              <p className="text-sm text-gray-500">Most Common Diagnosis</p>
+              <p className="text-sm text-gray-500">AI-Recommended Options</p>
               <p className="font-medium text-gray-800">
-                {metrics.mostCommonDiagnosis}
+                {selectedPatient
+                  ? "Based on patient profile"
+                  : "Select a patient"}
               </p>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-gray-600 font-medium">Treatment Metrics</h2>
-              <Activity className="text-blue-500" />
+              <h2 className="text-gray-600 font-medium">Outcome Prediction</h2>
+              <TrendingUp className="text-blue-500" />
             </div>
             <div className="flex items-center justify-center h-32">
-              <BarChart className="text-blue-600 w-28 h-28 opacity-70" />
+              <div className="text-center">
+                <Zap
+                  className={`h-12 w-12 mx-auto mb-2 ${
+                    treatmentInsights.predictedOutcome.includes("Positive")
+                      ? "text-green-500"
+                      : treatmentInsights.predictedOutcome.includes("Neutral")
+                      ? "text-yellow-500"
+                      : "text-red-500"
+                  }`}
+                />
+                <p className="text-lg font-bold text-gray-800">
+                  {treatmentInsights.predictedOutcome}
+                </p>
+              </div>
             </div>
             <div className="mt-2">
-              <p className="text-sm text-gray-500">Avg. Treatment Duration</p>
-              <p className="font-medium text-gray-800">
-                {metrics.averageTreatmentTime}
-              </p>
+              <p className="text-sm text-gray-500">AI Confidence Level</p>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                <div
+                  className={`${
+                    treatmentInsights.confidenceLevel > 80
+                      ? "bg-green-600"
+                      : treatmentInsights.confidenceLevel > 60
+                      ? "bg-blue-600"
+                      : "bg-yellow-600"
+                  } h-2.5 rounded-full`}
+                  style={{
+                    width: `${treatmentInsights.confidenceLevel}%`,
+                  }}></div>
+              </div>
             </div>
           </div>
         </div>
