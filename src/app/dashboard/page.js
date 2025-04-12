@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   UserRound,
   FilePlus,
@@ -16,101 +16,12 @@ import {
   Database,
   BarChart,
   ChevronDown,
-  Loader2
-} from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-
-// Sample data
-const patientsData = [
-  {
-    id: "1",
-    doctorId: "d1",
-    contactNumber: "+1 (555) 123-4567",
-    fullName: "John Smith",
-    details: {
-      id: "pd1",
-      patientId: "1",
-      gender: "Male",
-      age: 45,
-      bloodGroup: "O+",
-      allergies: "Penicillin, Dust",
-      currentMedications: "Lisinopril 10mg",
-      smokingAlcoholStatus: "Former smoker, social drinker",
-      symptoms: "Persistent cough, chest pain, shortness of breath",
-      currentProblem: "Suspected pneumonia",
-      bloodPressure: "140/90",
-      bloodSugarLevel: "110 mg/dL",
-      chronicConditions: "Hypertension",
-      diagnosis: "Bacterial pneumonia",
-      treatmentPlan: "Antibiotics, rest, increased fluid intake",
-      medicationsPrescribed: "Azithromycin 500mg",
-      proceduresPerformed: "Chest X-ray, Blood work",
-      outcome: "Improving",
-      doctorNotes:
-        "Patient showing signs of improvement after 3 days of antibiotics",
-      createdAt: "2025-04-08T10:30:00Z",
-    },
-  },
-  {
-    id: "2",
-    doctorId: "d1",
-    contactNumber: "+1 (555) 987-6543",
-    fullName: "Sarah Johnson",
-    details: {
-      id: "pd2",
-      patientId: "2",
-      gender: "Female",
-      age: 32,
-      bloodGroup: "A+",
-      allergies: "Shellfish",
-      currentMedications: "None",
-      smokingAlcoholStatus: "Non-smoker, occasional drinker",
-      symptoms: "Severe headache, fever, stiff neck",
-      currentProblem: "Suspected meningitis",
-      bloodPressure: "125/85",
-      bloodSugarLevel: "95 mg/dL",
-      chronicConditions: "None",
-      diagnosis: "Viral meningitis",
-      treatmentPlan: "Supportive care, pain management",
-      medicationsPrescribed: "Ibuprofen 600mg",
-      proceduresPerformed: "Lumbar puncture, MRI",
-      outcome: "Stable",
-      doctorNotes: "Patient requires close monitoring for the next 24 hours",
-      createdAt: "2025-04-10T14:15:00Z",
-    },
-  },
-  {
-    id: "3",
-    doctorId: "d2",
-    contactNumber: "+1 (555) 456-7890",
-    fullName: "Robert Chen",
-    details: {
-      id: "pd3",
-      patientId: "3",
-      gender: "Male",
-      age: 58,
-      bloodGroup: "B-",
-      allergies: "Latex, Sulfa drugs",
-      currentMedications: "Metformin 1000mg, Atorvastatin 20mg",
-      smokingAlcoholStatus: "Non-smoker, non-drinker",
-      symptoms: "Polyuria, fatigue, blurred vision",
-      currentProblem: "Uncontrolled diabetes",
-      bloodPressure: "150/95",
-      bloodSugarLevel: "210 mg/dL",
-      chronicConditions: "Type 2 Diabetes, Hyperlipidemia",
-      diagnosis: "Diabetic ketoacidosis",
-      treatmentPlan: "Insulin therapy, fluid replacement",
-      medicationsPrescribed:
-        "Insulin glargine 25u daily, Insulin lispro sliding scale",
-      proceduresPerformed: "Blood work, Urinalysis",
-      outcome: "Worsening",
-      doctorNotes:
-        "Patient's blood sugar poorly controlled, consider hospital admission",
-      createdAt: "2025-04-11T09:45:00Z",
-    },
-  },
-];
+  Loader2,
+} from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import NewPatientForm from "@/components/NewPatientForm";
+import { signOut } from "next-auth/react";
 
 // Dashboard metrics
 const metrics = {
@@ -128,55 +39,101 @@ export default function PatientDashboard() {
   const [treatmentAnalysis, setTreatmentAnalysis] = useState({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
-  
+  const [showNewPatientForm, setShowNewPatientForm] = useState(false);
+  const [patientsData, setPatientsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const fetchPatients = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/patients");
+      if (!response.ok) {
+        throw new Error("Failed to fetch patients");
+      }
+      const data = await response.json();
+      // Ensure patientsData is always an array
+      console.log(data);
+      if (data && data.patients && Array.isArray(data.patients)) {
+        setPatientsData(data.patients);
+      } else {
+        setPatientsData([]);
+      }
+    } catch (err) {
+      console.error("Error fetching patients:", err);
+      setError(err.message);
+      // Initialize with empty array on error
+      setPatientsData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handlePatientClick = (patient) => {
     setSelectedPatient(patient);
     setShowAnalysis(false);
     setAnalysisError(null);
   };
-  
-  const handleDeletePatient = (id) => {
-    // In a real app, this would be an API call
-    alert(`Delete patient with ID: ${id}`);
+
+  const handleDeletePatient = async (id) => {
+    try {
+      const response = await fetch(`/api/patients/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete patient");
+      }
+
+      // Refresh the patient list after deletion
+      fetchPatients();
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      alert(`Error deleting patient: ${error.message}`);
+    }
   };
 
   const handleAnalyzeTreatment = async () => {
     if (!selectedPatient) return;
-    
+
     // Check if we already have analysis for this patient
     if (treatmentAnalysis[selectedPatient.id]) {
       setShowAnalysis(true);
       return;
     }
-    
+
     setIsAnalyzing(true);
     setAnalysisError(null);
-    
+
     try {
-      const response = await fetch('/api/analyze-treatment', {
-        method: 'POST',
+      const response = await fetch("/api/analyze-treatment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(selectedPatient.details),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze treatment');
+        throw new Error(errorData.error || "Failed to analyze treatment");
       }
-      
+
       const data = await response.json();
-      
+
       // Store the analysis result
-      setTreatmentAnalysis(prev => ({
+      setTreatmentAnalysis((prev) => ({
         ...prev,
-        [selectedPatient.id]: data.analysis
+        [selectedPatient.id]: data.analysis,
       }));
-      
+
       setShowAnalysis(true);
     } catch (error) {
-      console.error('Error analyzing treatment:', error);
+      console.error("Error analyzing treatment:", error);
       setAnalysisError(error.message);
     } finally {
       setIsAnalyzing(false);
@@ -202,7 +159,22 @@ export default function PatientDashboard() {
           </div>
           <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md flex items-center space-x-2">
             <FilePlus size={16} />
-            <span>New Patient</span>
+            <span onClick={() => setShowNewPatientForm(true)}>New Patient</span>
+            {showNewPatientForm && (
+              <NewPatientForm
+                isOpen={showNewPatientForm}
+                onClose={() => setShowNewPatientForm(false)}
+                onSuccess={() => {
+                  setShowNewPatientForm(false);
+                  fetchPatients(); // Refresh patient list after adding
+                }}
+              />
+            )}
+          </button>
+          <button
+            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md flex items-center space-x-2"
+            onClick={() => signOut()}>
+            Sign Out
           </button>
         </div>
       </div>
@@ -290,41 +262,62 @@ export default function PatientDashboard() {
                 </div>
               </div>
               <div className="divide-y divide-gray-100">
-                {patientsData.map((patient) => (
-                  <div
-                    key={patient.id}
-                    className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${
-                      selectedPatient?.id === patient.id
-                        ? "bg-blue-50 border-l-4 border-blue-500"
-                        : ""
-                    }`}
-                    onClick={() => handlePatientClick(patient)}>
-                    <div className="flex items-center space-x-4">
-                      <div className="bg-gray-100 rounded-full p-2">
-                        <UserRound className="text-gray-600" size={20} />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-800">
-                          {patient.fullName}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {patient.contactNumber}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        className="text-red-500 hover:text-red-700 p-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeletePatient(patient.id);
-                        }}>
-                        <Trash2 size={16} />
-                      </button>
-                      <ChevronRight size={18} className="text-gray-400" />
-                    </div>
+                {isLoading ? (
+                  <div className="p-8 flex justify-center items-center">
+                    <Loader2 className="animate-spin text-blue-500 mr-2" />
+                    <span className="text-gray-600">Loading patients...</span>
                   </div>
-                ))}
+                ) : error ? (
+                  <div className="p-8 text-center">
+                    <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                    <p className="text-red-600">{error}</p>
+                    <Button
+                      className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={fetchPatients}>
+                      Retry
+                    </Button>
+                  </div>
+                ) : patientsData.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    No patients found. Add a new patient to get started.
+                  </div>
+                ) : (
+                  patientsData.map((patient) => (
+                    <div
+                      key={patient.id}
+                      className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${
+                        selectedPatient?.id === patient.id
+                          ? "bg-blue-50 border-l-4 border-blue-500"
+                          : ""
+                      }`}
+                      onClick={() => handlePatientClick(patient)}>
+                      <div className="flex items-center space-x-4">
+                        <div className="bg-gray-100 rounded-full p-2">
+                          <UserRound className="text-gray-600" size={20} />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-800">
+                            {patient.fullName}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {patient.contactNumber}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          className="text-red-500 hover:text-red-700 p-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeletePatient(patient.id);
+                          }}>
+                          <Trash2 size={16} />
+                        </button>
+                        <ChevronRight size={18} className="text-gray-400" />
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -343,11 +336,10 @@ export default function PatientDashboard() {
                     </span>
                   </div>
                   {!showAnalysis && (
-                    <Button 
+                    <Button
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm flex items-center space-x-1"
                       onClick={handleAnalyzeTreatment}
-                      disabled={isAnalyzing}
-                    >
+                      disabled={isAnalyzing}>
                       {isAnalyzing ? (
                         <>
                           <Loader2 size={14} className="animate-spin mr-1" />
@@ -382,55 +374,61 @@ export default function PatientDashboard() {
                         AI Analysis
                       </AlertTitle>
                       <AlertDescription className="text-blue-700">
-                        The following treatment suggestions were generated by Gemini AI based on the patient's condition and medical history.
+                        The following treatment suggestions were generated by
+                        Gemini AI based on the patient's condition and medical
+                        history.
                       </AlertDescription>
                     </Alert>
 
                     {analysisError ? (
                       <Alert className="mb-4 bg-red-50 border-red-200">
                         <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertTitle className="text-red-800">Analysis Failed</AlertTitle>
+                        <AlertTitle className="text-red-800">
+                          Analysis Failed
+                        </AlertTitle>
                         <AlertDescription className="text-red-700">
                           {analysisError}. Please try again or contact support.
                         </AlertDescription>
                       </Alert>
                     ) : (
                       <div className="space-y-6">
-                        {treatmentAnalysis[selectedPatient.id]?.treatments.map((treatment, index) => (
-                          <div
-                            key={index}
-                            className="border border-gray-200 rounded-lg p-4">
-                            <h4 className="font-medium text-gray-800 mb-2">
-                              {treatment.name}
-                            </h4>
-                            <p className="text-gray-600 mb-4">
-                              {treatment.description}
-                            </p>
+                        {treatmentAnalysis[selectedPatient.id]?.treatments.map(
+                          (treatment, index) => (
+                            <div
+                              key={index}
+                              className="border border-gray-200 rounded-lg p-4">
+                              <h4 className="font-medium text-gray-800 mb-2">
+                                {treatment.name}
+                              </h4>
+                              <p className="text-gray-600 mb-4">
+                                {treatment.description}
+                              </p>
 
-                            <h5 className="text-sm font-medium text-gray-700 mb-2">
-                              Possible Outcomes:
-                            </h5>
-                            <ul className="space-y-2">
-                              {treatment.outcomes.map((outcome, idx) => (
-                                <li
-                                  key={idx}
-                                  className="text-sm flex items-start space-x-2">
-                                  <div
-                                    className={`mt-1 h-2 w-2 rounded-full ${
-                                      idx === 0
-                                        ? "bg-green-500"
-                                        : idx === 1
-                                        ? "bg-yellow-500"
-                                        : "bg-red-500"
-                                    }`}></div>
-                                  <span className="text-gray-600">
-                                    {outcome}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                              <h5 className="text-sm font-medium text-gray-700 mb-2">
+                                Possible Outcomes:
+                              </h5>
+                              <ul className="space-y-2">
+                                {treatment.outcomes.map((outcome, idx) => (
+                                  <li
+                                    key={idx}
+                                    className="text-sm flex items-start space-x-2">
+                                    <div
+                                      className={`mt-1 h-2 w-2 rounded-full ${
+                                        idx === 0
+                                          ? "bg-green-500"
+                                          : idx === 1
+                                          ? "bg-yellow-500"
+                                          : "bg-red-500"
+                                      }`}></div>
+                                    <span className="text-gray-600">
+                                      {outcome}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
                   </div>
@@ -656,8 +654,6 @@ export default function PatientDashboard() {
           </div>
         </div>
       </div>
-
-      
     </div>
   );
 }
