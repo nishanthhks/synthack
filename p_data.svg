@@ -1,0 +1,96 @@
+<svg viewBox="0 0 800 1100" xmlns="http://www.w3.org/2000/svg">
+  <!-- PDF Background -->
+  <rect width="800" height="1100" fill="#ffffff" stroke="#cccccc" stroke-width="1" />
+  
+  <!-- Header with logo -->
+  <rect x="50" y="50" width="700" height="100" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5" ry="5" />
+  <text x="70" y="100" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2c3e50">General Hospital Medical Center</text>
+  <text x="70" y="130" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">123 Healthcare Avenue, Medicalville, MC 12345</text>
+  
+  <!-- Document Title -->
+  <text x="400" y="190" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">MEDICAL RECORD</text>
+  <text x="400" y="215" font-family="Arial, sans-serif" font-size="14" fill="#6c757d" text-anchor="middle">CONFIDENTIAL PATIENT INFORMATION</text>
+  
+  <!-- Patient Information Section -->
+  <rect x="50" y="240" width="700" height="180" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5" ry="5" />
+  <text x="70" y="270" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">PATIENT INFORMATION</text>
+  
+  <text x="70" y="300" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Patient Name:</text>
+  <text x="200" y="300" font-family="Arial, sans-serif" font-size="14" fill="#212529">Sarah Johnson</text>
+  
+  <text x="70" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Date of Birth:</text>
+  <text x="200" y="325" font-family="Arial, sans-serif" font-size="14" fill="#212529">05/12/1985</text>
+  
+  <text x="70" y="350" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Gender:</text>
+  <text x="200" y="350" font-family="Arial, sans-serif" font-size="14" fill="#212529">Female</text>
+  
+  <text x="70" y="375" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Contact #:</text>
+  <text x="200" y="375" font-family="Arial, sans-serif" font-size="14" fill="#212529">(555) 123-4567</text>
+  
+  <text x="400" y="300" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Medical Record #:</text>
+  <text x="530" y="300" font-family="Arial, sans-serif" font-size="14" fill="#212529">MR-20250125-8642</text>
+  
+  <text x="400" y="325" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Age:</text>
+  <text x="530" y="325" font-family="Arial, sans-serif" font-size="14" fill="#212529">39</text>
+  
+  <text x="400" y="350" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Blood Group:</text>
+  <text x="530" y="350" font-family="Arial, sans-serif" font-size="14" fill="#212529">B+</text>
+  
+  <text x="400" y="375" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Insurance:</text>
+  <text x="530" y="375" font-family="Arial, sans-serif" font-size="14" fill="#212529">HealthGuard Plus</text>
+  
+  <!-- Medical History Section -->
+  <rect x="50" y="440" width="700" height="180" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5" ry="5" />
+  <text x="70" y="470" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">MEDICAL HISTORY</text>
+  
+  <text x="70" y="500" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Allergies:</text>
+  <text x="200" y="500" font-family="Arial, sans-serif" font-size="14" fill="#212529">Penicillin, Shellfish</text>
+  
+  <text x="70" y="525" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Current Medications:</text>
+  <text x="230" y="525" font-family="Arial, sans-serif" font-size="14" fill="#212529">Lisinopril 10mg, Metformin 500mg</text>
+  
+  <text x="70" y="550" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Smoking/Alcohol:</text>
+  <text x="230" y="550" font-family="Arial, sans-serif" font-size="14" fill="#212529">Non-smoker, Occasional alcohol</text>
+  
+  <text x="70" y="575" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Chronic Conditions:</text>
+  <text x="230" y="575" font-family="Arial, sans-serif" font-size="14" fill="#212529">Hypertension, Type 2 Diabetes</text>
+  
+  <!-- Current Condition Section -->
+  <rect x="50" y="640" width="700" height="180" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5" ry="5" />
+  <text x="70" y="670" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">CURRENT CONDITION</text>
+  
+  <text x="70" y="700" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Current Problem:</text>
+  <text x="230" y="700" font-family="Arial, sans-serif" font-size="14" fill="#212529">Suspected respiratory infection</text>
+  
+  <text x="70" y="725" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Symptoms:</text>
+  <text x="230" y="725" font-family="Arial, sans-serif" font-size="14" fill="#212529">Persistent cough, fatigue, mild fever for 5 days</text>
+  
+  <text x="70" y="750" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Blood Pressure:</text>
+  <text x="230" y="750" font-family="Arial, sans-serif" font-size="14" fill="#212529">145/88 mmHg</text>
+  
+  <text x="70" y="775" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Blood Sugar Level:</text>
+  <text x="230" y="775" font-family="Arial, sans-serif" font-size="14" fill="#212529">132 mg/dL (fasting)</text>
+  
+  <!-- Treatment Section -->
+  <rect x="50" y="840" width="700" height="200" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="5" ry="5" />
+  <text x="70" y="870" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">TREATMENT INFORMATION</text>
+  
+  <text x="70" y="900" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Diagnosis:</text>
+  <text x="230" y="900" font-family="Arial, sans-serif" font-size="14" fill="#212529">Acute bronchitis</text>
+  
+  <text x="70" y="925" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Treatment Plan:</text>
+  <text x="230" y="925" font-family="Arial, sans-serif" font-size="14" fill="#212529">Antibiotics, increased fluid intake, rest</text>
+  
+  <text x="70" y="950" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Medications Prescribed:</text>
+  <text x="230" y="950" font-family="Arial, sans-serif" font-size="14" fill="#212529">Azithromycin 500mg QD for 5 days</text>
+  
+  <text x="70" y="975" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Procedures Performed:</text>
+  <text x="230" y="975" font-family="Arial, sans-serif" font-size="14" fill="#212529">Chest X-ray, Blood work</text>
+  
+  <text x="70" y="1000" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Outcome:</text>
+  <text x="230" y="1000" font-family="Arial, sans-serif" font-size="14" fill="#212529">Follow-up in 1 week, expected improvement</text>
+  
+  <!-- Footer -->
+  <line x1="50" y1="1060" x2="750" y2="1060" stroke="#e9ecef" stroke-width="1" />
+  <text x="70" y="1080" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">Attending Physician: Dr. Robert Chen | Date of Visit: 04/10/2025 | Page 1 of 1</text>
+</svg>

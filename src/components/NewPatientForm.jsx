@@ -1,11 +1,16 @@
 "use client";
-import { useState } from "react";
-import { X, Save, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Save, Loader2, Upload, FileText, Check, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function NewPatientForm({ isOpen, onClose, onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+  const [analysisSuccess, setAnalysisSuccess] = useState(false);
+  const [analysisMessage, setAnalysisMessage] = useState("");
+  const fileInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
     // Patient basic info
     fullName: "",
@@ -41,6 +46,67 @@ export default function NewPatientForm({ isOpen, onClose, onSuccess }) {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type !== "application/pdf") {
+        setError("Please upload a PDF file");
+        return;
+      }
+      
+      setSelectedFile(file);
+      setError(null);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      setError("Please select a file first");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setError(null);
+    setAnalysisSuccess(false);
+    setAnalysisMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await fetch("/api/analyze-patient-pdf", {
+        method: "POST",
+        body: formData,
+        // No Content-Type header as it's set automatically for FormData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to analyze PDF");
+      }
+
+      const data = await response.json();
+      
+      // Update form with the extracted data
+      setFormData(prev => ({
+        ...prev,
+        ...data.patientData
+      }));
+      
+      setAnalysisSuccess(true);
+      setAnalysisMessage("PDF analyzed successfully! Form has been populated with extracted information.");
+    } catch (err) {
+      console.error("Error analyzing PDF:", err);
+      setError(err.message || "Failed to analyze PDF");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
   };
 
   const handleSubmit = async (e) => {
@@ -91,11 +157,78 @@ export default function NewPatientForm({ isOpen, onClose, onSuccess }) {
           </button>
         </div>
 
-        {error && (
-          <Alert className="m-4 bg-red-50 border-red-200 text-red-800">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        {/* PDF Upload Section */}
+        <div className="p-6 border-b border-gray-200">
+          <h3 className="font-medium text-gray-700 pb-2">
+            Upload Patient Document
+          </h3>
+          
+          <div className="mt-2 flex items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="application/pdf"
+                  className="hidden"
+                />
+                
+                <button
+                  type="button"
+                  onClick={triggerFileInput}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2">
+                  <Upload size={16} />
+                  <span>Select PDF</span>
+                </button>
+                
+                {selectedFile && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <FileText size={16} />
+                    <span className="truncate max-w-xs">{selectedFile.name}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <button
+              type="button"
+              onClick={handleFileUpload}
+              disabled={!selectedFile || isAnalyzing}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 flex items-center gap-2">
+              {isAnalyzing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Analyzing...</span>
+                </>
+              ) : (
+                <>
+                  <FileText size={16} />
+                  <span>Analyze PDF</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {error && (
+            <Alert className="mt-4 bg-red-50 border-red-200 text-red-800">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {analysisSuccess && (
+            <Alert className="mt-4 bg-green-50 border-green-200 text-green-800">
+              <Check className="h-4 w-4" />
+              <AlertDescription>{analysisMessage}</AlertDescription>
+            </Alert>
+          )}
+          
+          <p className="mt-2 text-xs text-gray-500">
+            Upload a patient medical record PDF to automatically extract patient information using Gemini AI.
+            You can also manually enter or edit the information below.
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
