@@ -1,41 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Health Weave
 
-## Getting Started
+**Health Weave** is an **AI-powered treatment optimization platform** that delivers **personalized healthcare recommendations**. Built for the **Synthack Hackathon** using **Next.js, JavaScript, MongoDB, and Gemini AI**, it intelligently predicts individual responses to treatments by analyzing patient medical history, genetics, and lifestyle data.
 
-First, run the development server:
+## 🧬 Personalized Treatment Optimization
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 👤 Patient Profiling  
+- Aggregates medical history, genetic markers, and lifestyle factors.  
+- Builds dynamic profiles in a **centralized Patient Repository**.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🧠 AI Treatment Prediction  
+- Uses **LLM-backed analysis** to assess real-time data.  
+- Predicts treatment efficacy and side effect likelihood per patient.  
+- Parses data from medical PDFs to reduce manual entry.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 📈 Outcome Optimization  
+- Continuously updates recommendations based on patient progress.  
+- Delivers **confidence-rated predictions** for better decision-making.  
+- **Live treatment dashboard** to explore, adjust, and track changes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+![Next.js](https://img.shields.io/badge/Framework-Next.js-000?logo=next.js&logoColor=white)
+![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)
+![Gemini API](https://img.shields.io/badge/AI-Gemini_API-4285F4?logo=google&logoColor=white)
+![Hackathon](https://img.shields.io/badge/Event-Synthack_Hackathon-purple)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 💻 Explore the Platform
 
-## Deploy on Vercel
+- 🔍 **Explore Treatment Dashboard**  
+- 🔐 **Sign In / Create Account**  
+- 👨‍⚕️ **AI-Driven Recommendations**  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# synthack"
-anirudh
-sudhanva
-shreyass
+## 📸 Screenshots
 
+<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+  <img src="https://ik.imagekit.io/xaui7gvqp/healthweave/Screenshot%202025-04-14%20224742.png?updatedAt=1744651147422" alt="Dashboard 1" width="400" style="margin: 10px;">
+  <img src="https://ik.imagekit.io/xaui7gvqp/healthweave/Screenshot%202025-04-14%20224513.png?updatedAt=1744651146592" alt="Dashboard 2" width="400" style="margin: 10px;">
+  <img src="https://ik.imagekit.io/xaui7gvqp/healthweave/Screenshot%202025-04-14%20224555.png?updatedAt=1744651147488" alt="Dashboard 3" width="400" style="margin: 10px;">
+  <img src="https://ik.imagekit.io/xaui7gvqp/healthweave/Screenshot%202025-04-14%20224636.png?updatedAt=1744651147810" alt="Dashboard 4" width="400" style="margin: 10px;">
+</div>
